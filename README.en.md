@@ -72,3 +72,7 @@ may throttle a burst of requests, so the tool is meant for dozens of links, not 
 
 It reports the employer's deadline, not the employer's intent: a vacancy can be `OPEN` and still be
 filled.
+
+---
+
+More projects: [github.com/basovdanil](https://github.com/basovdanil) · write-ups: [portfolio](https://basovdanil.github.io/portfolio/)

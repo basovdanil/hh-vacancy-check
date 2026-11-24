@@ -71,3 +71,7 @@ python -m unittest discover -s tests
 
 Показывается дедлайн работодателя, а не намерение: вакансия может быть `OPEN` и уже закрытой
 по факту найма.
+
+---
+
+Другие проекты: [github.com/basovdanil](https://github.com/basovdanil) · разборы с числами: [portfolio](https://basovdanil.github.io/portfolio/)
