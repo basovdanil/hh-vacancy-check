@@ -4,6 +4,11 @@
 
 [English](README.en.md) · **Русский**
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/basovdanil/basovdanil/main/assets/tools.png"
+       alt="Восемь инструментов с тестами и кодами возврата" width="100%">
+</p>
+
 Проверяет, открыта ли вакансия на hh.ru — без входа в аккаунт и без токена API.
 
 ## Зачем

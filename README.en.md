@@ -4,6 +4,11 @@
 
 **English** · [Русский](README.md)
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/basovdanil/basovdanil/main/assets/tools.png"
+       alt="Eight tools with tests and exit codes" width="100%">
+</p>
+
 Checks whether hh.ru vacancies are still open, without logging in and without an API token.
 
 ## Why it exists
