@@ -42,11 +42,24 @@ Exit code `4` — at least one vacancy is closed, so it can gate a script that c
 
 ```
 python vacancy_check.py <id|url> [<id|url> ...] [--json]
+python vacancy_check.py --from-file vacancies.txt
 ```
 
 - accepts bare ids and full URLs (`https://hh.ru/vacancy/139441388?query=x`);
+- `--from-file` reads a text file: one id or URL per line, blank lines and `#` comments are skipped,
+  duplicates collapse, broken lines are reported (`exit 2`);
 - `--json` prints one object per vacancy to stdout, no colour, no progress;
 - standard library only, Python 3.8+.
+
+`vacancies.txt` for a job search looks like this:
+
+```
+# отклики этой недели
+139441388
+https://hh.ru/vacancy/139528682?query=1
+# старые, проверить перед письмом
+137593872
+```
 
 ## Use in CI as a GitHub Action
 

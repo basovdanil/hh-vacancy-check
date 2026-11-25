@@ -23,6 +23,7 @@ import sys
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
+from pathlib import Path
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
@@ -91,17 +92,64 @@ def check(vid: str, page: str | None = None, now: datetime | None = None) -> dic
     }
 
 
+def read_list(path: Path) -> list[str]:
+    """Read ids or URLs from a text file: one per line, blank lines and # comments skipped."""
+    entries = []
+    for line in path.read_text(encoding="utf-8-sig").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        entries.append(stripped)
+    return entries
+
+
+def collect_ids(items: list[str]) -> tuple[list[str], list[str]]:
+    """Turn raw input into unique vacancy ids, keeping the order. Returns (ids, rejected)."""
+    ids: list[str] = []
+    rejected: list[str] = []
+    for item in items:
+        try:
+            vid = vacancy_id(item)
+        except ValueError:
+            rejected.append(item)
+            continue
+        if vid not in ids:
+            ids.append(vid)
+    return ids, rejected
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Check whether hh.ru vacancies are still open (validThrough from JSON-LD).")
-    parser.add_argument("vacancies", nargs="+", help="vacancy ids or hh.ru URLs")
+    parser.add_argument("vacancies", nargs="*", help="vacancy ids or hh.ru URLs")
+    parser.add_argument("--from-file", dest="from_file", metavar="PATH",
+                        help="file with ids or URLs, one per line; blank lines and # comments ignored")
     parser.add_argument("--json", action="store_true", help="machine-readable output")
     args = parser.parse_args(argv)
 
-    try:
-        ids = [vacancy_id(item) for item in args.vacancies]
-    except ValueError as exc:
-        print(f"error: {exc}", file=sys.stderr)
+    items = list(args.vacancies)
+    if args.from_file:
+        path = Path(args.from_file)
+        if not path.exists():
+            print(f"error: no such file: {path}", file=sys.stderr)
+            return 3
+        try:
+            items.extend(read_list(path))
+        except (OSError, UnicodeDecodeError) as exc:
+            print(f"error: cannot read {path}: {exc}", file=sys.stderr)
+            return 3
+
+    if not items:
+        print("error: pass at least one vacancy id, or use --from-file", file=sys.stderr)
+        return 2
+
+    ids, rejected = collect_ids(items)
+    if rejected:
+        shown = ", ".join(repr(item) for item in rejected[:3])
+        print(f"error: no vacancy id in {shown}", file=sys.stderr)
+        return 2
+    if not ids:
+        print("error: the list is empty after removing comments", file=sys.stderr)
         return 2
 
     rows, failed = [], False
