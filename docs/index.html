@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>hh-vacancy-check — открыта ли вакансия на hh.ru</title>
+<meta name="description" content="Проверка вакансии hh.ru по дедлайну работодателя: OPEN или CLOSED. Онлайн-демо CLI, который читает schema.org JobPosting вместо текста страницы.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="hh-vacancy-check — открыта ли вакансия на hh.ru">
+<meta property="og:description" content="Дедлайн работодателя из schema.org JobPosting: OPEN, CLOSED или UNKNOWN. Демо и CLI.">
+<meta property="og:url" content="https://basovdanil.github.io/hh-vacancy-check/">
+<style>
+:root{--ink:#0F2B46;--muted:#5B7186;--accent:#1F6FEB;--ok:#0E7C5A;--bad:#B3261E;--warn:#9A6B00;--line:#D8E1EA;--soft:#F7F9FC}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--ink);font:16px/1.6 -apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:40px 24px 64px}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+h1{font-size:32px;line-height:1.2;margin:10px 0 12px}
+.lead{color:var(--muted);margin:0 0 28px;max-width:70ch}
+h2{font-size:19px;margin:36px 0 10px}
+p{margin:0 0 12px}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:14px;background:var(--soft);border:1px solid var(--line);border-radius:5px;padding:2px 6px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+input[type=text],textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:11px 12px;font:inherit;color:var(--ink)}
+textarea{min-height:130px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px}
+input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+button{border:0;border-radius:8px;background:var(--accent);color:#fff;font:inherit;font-weight:600;padding:11px 18px;cursor:pointer}
+button.secondary{background:#fff;color:var(--accent);border:1px solid var(--accent)}
+button:hover{filter:brightness(1.05)}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0 0}
+th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:8px 10px;border-bottom:2px solid var(--line)}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+.chip{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;letter-spacing:.03em}
+.chip.open{background:#E3F4EE;color:var(--ok)}
+.chip.closed{background:#FBE9E7;color:var(--bad)}
+.chip.unknown{background:#FFF4DE;color:var(--warn)}
+.result{margin-top:14px;padding:14px 16px;border-radius:10px;border:1px solid var(--line);background:var(--soft);display:none}
+.result.show{display:block}
+.note{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:14px 16px;color:var(--muted);font-size:14px}
+.note p:last-child{margin:0}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+a{color:var(--accent)}
+@media (max-width:640px){h1{font-size:26px}.wrap{padding:28px 16px 48px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Демо · hh-vacancy-check</div>
+  <h1>Открыта ли вакансия на hh.ru</h1>
+  <p class="lead">hh держит страницу закрытой вакансии в сети, а в шаблоне любой карточки стоит
+  «Вакансия в архиве» — поэтому поиск по тексту врёт в обе стороны. Инструмент читает дедлайн
+  работодателя из блока schema.org <code>JobPosting</code> и отвечает <b>OPEN</b>, <b>CLOSED</b>
+  или <b>UNKNOWN</b>.</p>
+
+  <h2>Проверить вакансию по id или ссылке</h2>
+  <div class="row">
+    <input id="vid" type="text" placeholder="139441388 или https://hh.ru/vacancy/139441388" autocomplete="off">
+    <button id="check">Проверить</button>
+  </div>
+  <div id="verdict" class="result"></div>
+
+  <h2>Или разобрать страницу у себя в браузере</h2>
+  <p class="note">Браузер на этой странице не может сам запросить hh.ru: сайт не отдаёт
+  CORS-заголовки, и любой прямой запрос из чужого домена блокируется. Поэтому второй путь —
+  открыть вакансию, нажать <code>Ctrl+U</code> (исходный код), <code>Ctrl+A</code>,
+  <code>Ctrl+C</code> и вставить сюда: разбор идёт ровно тем же правилом, что в CLI.</p>
+  <textarea id="html" placeholder="Вставьте сюда исходный код страницы вакансии"></textarea>
+  <div class="row" style="margin-top:10px">
+    <button id="parse">Разобрать страницу</button>
+    <button id="clear" class="secondary">Очистить</button>
+  </div>
+  <div id="parsed" class="result"></div>
+
+  <h2>Снимок живой проверки</h2>
+  <p class="muted" id="snapshot-note">Загрузка снимка…</p>
+  <table>
+    <thead><tr><th>Вакансия</th><th>Дедлайн</th><th>Статус</th></tr></thead>
+    <tbody id="rows"><tr><td colspan="3">…</td></tr></tbody>
+  </table>
+
+  <h2>Как проверить любую вакансию</h2>
+  <pre><code>python vacancy_check.py 139441388 139528682
+python vacancy_check.py https://hh.ru/vacancy/139441388 --json</code></pre>
+  <p>Один файл, только стандартная библиотека, Python 3.8+. Код возврата <code>0</code> — все
+  открыты, <code>4</code> — есть закрытые, <code>3</code> — страницу не удалось получить.</p>
+
+  <p class="note">Снимок на странице собирается тем же скриптом раз в неделю (GitHub Actions)
+  и хранится в <code>docs/data.json</code>. Если вакансии нет в снимке — используйте CLI или
+  разбор исходника выше.</p>
+
+  <footer>
+    <a href="https://github.com/basovdanil/hh-vacancy-check">исходный код</a> ·
+    <a href="https://basovdanil.github.io/portfolio/">другие инструменты</a> ·
+    MIT, данные — публичные страницы hh.ru.
+    <br>English: this demo checks a vacancy's employer deadline from the schema.org
+    <code>JobPosting</code> block. Browsers cannot call hh.ru directly (no CORS), so the page
+    either reads a weekly snapshot or parses the page source you paste.
+  </footer>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
