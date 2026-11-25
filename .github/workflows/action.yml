@@ -19,3 +19,19 @@ jobs:
         run: |
           test -n "${{ steps.check.outputs.result }}"
           echo "${{ steps.check.outputs.result }}"
+
+  # Consumer's view: resolve the action through the moving v1 tag, as a real project would.
+  remote-tag:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Run basovdanil/hh-vacancy-check@v1
+        id: remote
+        uses: basovdanil/hh-vacancy-check@v1
+        continue-on-error: true
+        with:
+          vacancies: "139386982"
+          json: "true"
+      - name: JSON output must mention the vacancy
+        run: |
+          echo '${{ steps.remote.outputs.result }}' | tee out.json
+          grep -q '139386982' out.json
