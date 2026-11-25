@@ -11,6 +11,13 @@
 
 Checks whether hh.ru vacancies are still open, without logging in and without an API token.
 
+**Browser demo:** https://basovdanil.github.io/hh-vacancy-check/ — paste a vacancy id or the page
+source and get `OPEN` or `CLOSED`.
+
+<p align="center">
+  <img src="docs/demo.png" alt="Demo page: vacancy snapshot, id field and page-source parser" width="85%">
+</p>
+
 ## Why it exists
 
 hh keeps an archived vacancy page online, and the page template always contains the phrase
