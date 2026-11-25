@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Browser demo
+    url: https://basovdanil.github.io/hh-vacancy-check/
+    about: Check a vacancy without installing anything
+  - name: How the check works
+    url: https://github.com/basovdanil/hh-vacancy-check#how-the-check-is-done
+    about: Why the page text is unreliable and what validThrough means

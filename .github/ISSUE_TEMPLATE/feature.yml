@@ -1,0 +1,26 @@
+name: Feature request
+description: A new check, an output format, or another portal
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you solving
+      description: Describe the job-search situation, not the code you want
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What the tool should do
+      description: Command line, output, exit code — as concretely as you can
+    validations:
+      required: true
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints this project keeps
+      options:
+        - label: Standard library only, no new dependencies
+        - label: Tests can run without network access
+        - label: The exit-code contract (0/2/3/4) stays meaningful

@@ -1,0 +1,48 @@
+name: Bug report
+description: A vacancy is reported open when it is closed, or the reverse
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: the tool reads the employer's deadline (`validThrough`) from the page's
+        schema.org block. A posting can be **open by deadline** and already filled — that is not a bug.
+  - type: input
+    id: vacancy
+    attributes:
+      label: Vacancy id or URL
+      description: The posting that gives the wrong answer
+      placeholder: "139441388 or https://hh.ru/vacancy/139441388"
+    validations:
+      required: true
+  - type: dropdown
+    id: expected
+    attributes:
+      label: What should the status be
+      options: ["open", "closed", "unknown"]
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: What the tool printed
+      description: Paste the output line and the exit code (`echo $?`)
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: The JobPosting block, if you can get it
+      description: |
+        Open the vacancy, press Ctrl+U, find `<script type="application/ld+json">` with
+        `"@type": "JobPosting"` and paste it. Remove any personal data first.
+      render: json
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Release tag or commit
+      placeholder: "v1.1.0"
+    validations:
+      required: true
