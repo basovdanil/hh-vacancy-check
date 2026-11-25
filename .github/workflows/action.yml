@@ -1,0 +1,21 @@
+name: action
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run the composite action on a live vacancy
+        id: check
+        uses: ./
+        continue-on-error: true
+        with:
+          vacancies: "139441388"
+      - name: The action must return a table
+        run: |
+          test -n "${{ steps.check.outputs.result }}"
+          echo "${{ steps.check.outputs.result }}"

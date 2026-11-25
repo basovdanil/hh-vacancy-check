@@ -1,0 +1,48 @@
+name: "hh-vacancy-check"
+description: "Fail a workflow when an hh.ru vacancy is closed (validThrough from schema.org JobPosting)"
+author: "basovdanil"
+branding:
+  icon: "check-circle"
+  color: "blue"
+
+inputs:
+  vacancies:
+    description: "Space-separated vacancy ids or hh.ru URLs"
+    required: true
+  json:
+    description: "Print machine-readable output instead of a table"
+    required: false
+    default: "false"
+
+outputs:
+  result:
+    description: "Table or JSON with one line per vacancy"
+    value: ${{ steps.check.outputs.result }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+    - id: check
+      shell: bash
+      env:
+        VACANCIES: ${{ inputs.vacancies }}
+        AS_JSON: ${{ inputs.json }}
+      run: |
+        set -o pipefail
+        args=()
+        if [ "$AS_JSON" = "true" ]; then
+          args+=(--json)
+        fi
+        # shellcheck disable=SC2086
+        output=$(python "$GITHUB_ACTION_PATH/vacancy_check.py" $VACANCIES "${args[@]}")
+        status=$?
+        echo "$output"
+        {
+          echo "result<<EOF"
+          echo "$output"
+          echo "EOF"
+        } >> "$GITHUB_OUTPUT"
+        exit $status

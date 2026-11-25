@@ -48,6 +48,24 @@ python vacancy_check.py <id|url> [<id|url> ...] [--json]
 - `--json` prints one object per vacancy to stdout, no colour, no progress;
 - standard library only, Python 3.8+.
 
+## Use in CI as a GitHub Action
+
+The repository is a composite action: fail a workflow when a posting you depend on is closed.
+
+```yaml
+- uses: basovdanil/hh-vacancy-check@v1
+  id: vacancy
+  with:
+    vacancies: "139441388 139528682"   # ids or full URLs, space separated
+    json: "false"                      # "true" for machine-readable output
+
+- run: echo '${{ steps.vacancy.outputs.result }}'
+```
+
+Exit code `4` fails the step when at least one vacancy is closed, so a scheduled job can stop a
+scraper or a report that references a dead posting. `actions/setup-python` is included in the action,
+no extra step needed.
+
 ## Exit codes
 
 | Code | Meaning |
